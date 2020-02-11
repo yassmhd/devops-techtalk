@@ -1,15 +1,14 @@
 #!/bin/bash
 
-for i in `seq 1 10`;
-do
-  HTTP_CODE=`curl --write-out '%{http_code}' -o /dev/null -m 10 -q -s http://localhost:8080`
-  if [ "$HTTP_CODE" == "200" ]; then
-    echo "Successfully pulled root page."
-    exit 0;
-  fi
-  echo "Attempt to curl endpoint returned HTTP Code $HTTP_CODE. Backing off and retrying."
-  sleep 10
-done
-echo "Server did not come up after expected time. Failing."
-exit 1
 
+echo "Waiting for 15 seconds before checking health.."
+sleep 15
+
+status_code=$(curl --write-out %{http_code} --silent --output /dev/null http://localhost:80)
+if [[ "$status_code" -ne 200 ]] ; then
+  echo "App is not healthy - $status_code"
+  exit 1
+else
+  echo "App is responding with $status_code"
+  exit 0
+fi
